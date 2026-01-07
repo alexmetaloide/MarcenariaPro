@@ -321,6 +321,17 @@ export default function App() {
     }
   };
 
+  const handleDeleteTransaction = async (id: number) => {
+    const { error } = await supabase.from('transactions').delete().eq('id', id);
+    if (!error) {
+      setTransactions(prev => prev.filter(t => t.id !== id));
+    } else {
+      console.error('Error deleting transaction:', error);
+      alert('Erro ao excluir movimentação financeira.');
+    }
+  };
+
+
   if (isLoadingAuth) {
     return <div className="h-screen flex items-center justify-center bg-slate-100 dark:bg-slate-950"><Loader2 className="animate-spin text-amber-600" size={40} /></div>;
   }
@@ -425,6 +436,7 @@ export default function App() {
           <FinanceManager
             transactions={transactions}
             setTransactions={setTransactions}
+            onDelete={handleDeleteTransaction}
           />
         )}
         {activeTab === 'quotes' && (
