@@ -15,22 +15,53 @@ export default defineConfig(({ mode }) => {
       react(),
       VitePWA({
         registerType: 'autoUpdate',
-        includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+        injectRegister: 'auto',
+        strategies: 'generateSW',
+        devOptions: {
+          enabled: true,
+          type: 'classic'
+        },
+        includeAssets: ['favicon.ico', 'pwa-192x192.png', 'pwa-512x512.png', 'pwa-180x180.png'],
         manifest: {
-          name: 'Marcenaria Pro - Gestão Inteligente',
-          short_name: 'Marcenaria Pro',
-          description: 'Sistema de gestão para marcenarias',
-          theme_color: '#ffffff',
+          name: 'Marcenaria Pro',
+          short_name: 'MarcenariaPro',
+          description: 'Gestão Completa para Marceneiros',
+          theme_color: '#ea580c',
+          background_color: '#0f172a',
+          display: 'standalone',
+          orientation: 'portrait',
+          scope: '/MarcenariaPro/',
+          start_url: '/MarcenariaPro/',
           icons: [
+            {
+              src: 'pwa-180x180.png',
+              sizes: '180x180',
+              type: 'image/png',
+              purpose: 'any'
+            },
             {
               src: 'pwa-192x192.png',
               sizes: '192x192',
-              type: 'image/png'
+              type: 'image/png',
+              purpose: 'any'
+            },
+            {
+              src: 'pwa-192x192.png',
+              sizes: '192x192',
+              type: 'image/png',
+              purpose: 'maskable'
             },
             {
               src: 'pwa-512x512.png',
               sizes: '512x512',
-              type: 'image/png'
+              type: 'image/png',
+              purpose: 'any'
+            },
+            {
+              src: 'pwa-512x512.png',
+              sizes: '512x512',
+              type: 'image/png',
+              purpose: 'maskable'
             }
           ]
         }
