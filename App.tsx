@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { 
+import {
   Menu,
   X,
   Package,
@@ -37,7 +37,7 @@ export default function App() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [quoteToEditId, setQuoteToEditId] = useState<number | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('loading');
-  
+
   // Ref to track if data has been loaded initially to avoid echoing back to DB immediately
   const isDataLoaded = useRef(false);
 
@@ -123,7 +123,7 @@ export default function App() {
           setConnectionStatus('connected');
           // Mark data as loaded after a short delay to ensure state updates don't trigger immediate save
           setTimeout(() => { isDataLoaded.current = true; }, 1000);
-          
+
         } catch (error) {
           console.error("Erro ao carregar dados:", error);
           setConnectionStatus('error');
@@ -147,9 +147,9 @@ export default function App() {
   useEffect(() => {
     if (!session || !isDataLoaded.current || inventory.length === 0) return;
     const timer = setTimeout(() => {
-       setConnectionStatus('saving');
-       const payload = inventory.map(i => ({...i, user_id: session.user.id}));
-       supabase.from('inventory').upsert(payload).then(({ error }) => handleSaveStatus(error));
+      setConnectionStatus('saving');
+      const payload = inventory.map(i => ({ ...i, user_id: session.user.id }));
+      supabase.from('inventory').upsert(payload).then(({ error }) => handleSaveStatus(error));
     }, 2000);
     return () => clearTimeout(timer);
   }, [inventory, session]);
@@ -157,9 +157,9 @@ export default function App() {
   useEffect(() => {
     if (!session || !isDataLoaded.current || transactions.length === 0) return;
     const timer = setTimeout(() => {
-       setConnectionStatus('saving');
-       const payload = transactions.map(t => ({...t, user_id: session.user.id}));
-       supabase.from('transactions').upsert(payload).then(({error}) => handleSaveStatus(error));
+      setConnectionStatus('saving');
+      const payload = transactions.map(t => ({ ...t, user_id: session.user.id }));
+      supabase.from('transactions').upsert(payload).then(({ error }) => handleSaveStatus(error));
     }, 2000);
     return () => clearTimeout(timer);
   }, [transactions, session]);
@@ -167,9 +167,9 @@ export default function App() {
   useEffect(() => {
     if (!session || !isDataLoaded.current || quotes.length === 0) return;
     const timer = setTimeout(() => {
-       setConnectionStatus('saving');
-       const payload = quotes.map(q => ({...q, user_id: session.user.id}));
-       supabase.from('quotes').upsert(payload).then(({error}) => handleSaveStatus(error));
+      setConnectionStatus('saving');
+      const payload = quotes.map(q => ({ ...q, user_id: session.user.id }));
+      supabase.from('quotes').upsert(payload).then(({ error }) => handleSaveStatus(error));
     }, 2000);
     return () => clearTimeout(timer);
   }, [quotes, session]);
@@ -177,9 +177,9 @@ export default function App() {
   useEffect(() => {
     if (!session || !isDataLoaded.current || employees.length === 0) return;
     const timer = setTimeout(() => {
-       setConnectionStatus('saving');
-       const payload = employees.map(e => ({...e, user_id: session.user.id}));
-       supabase.from('employees').upsert(payload).then(({error}) => handleSaveStatus(error));
+      setConnectionStatus('saving');
+      const payload = employees.map(e => ({ ...e, user_id: session.user.id }));
+      supabase.from('employees').upsert(payload).then(({ error }) => handleSaveStatus(error));
     }, 2000);
     return () => clearTimeout(timer);
   }, [employees, session]);
@@ -187,9 +187,9 @@ export default function App() {
   useEffect(() => {
     if (!session || !isDataLoaded.current || suppliers.length === 0) return;
     const timer = setTimeout(() => {
-       setConnectionStatus('saving');
-       const payload = suppliers.map(s => ({...s, user_id: session.user.id}));
-       supabase.from('suppliers').upsert(payload).then(({error}) => handleSaveStatus(error));
+      setConnectionStatus('saving');
+      const payload = suppliers.map(s => ({ ...s, user_id: session.user.id }));
+      supabase.from('suppliers').upsert(payload).then(({ error }) => handleSaveStatus(error));
     }, 2000);
     return () => clearTimeout(timer);
   }, [suppliers, session]);
@@ -197,9 +197,9 @@ export default function App() {
   useEffect(() => {
     if (!session || !isDataLoaded.current || salespeople.length === 0) return;
     const timer = setTimeout(() => {
-       setConnectionStatus('saving');
-       const payload = salespeople.map(s => ({...s, user_id: session.user.id}));
-       supabase.from('salespeople').upsert(payload).then(({error}) => handleSaveStatus(error));
+      setConnectionStatus('saving');
+      const payload = salespeople.map(s => ({ ...s, user_id: session.user.id }));
+      supabase.from('salespeople').upsert(payload).then(({ error }) => handleSaveStatus(error));
     }, 2000);
     return () => clearTimeout(timer);
   }, [salespeople, session]);
@@ -207,49 +207,49 @@ export default function App() {
   useEffect(() => {
     if (!session || !isDataLoaded.current || !companyProfile.name) return;
     const timer = setTimeout(async () => {
-       setConnectionStatus('saving');
-       const payload = { ...companyProfile, user_id: session.user.id };
-       
-       // Manual Upsert Logic to avoid 42P10 error if user_id is not a unique constraint in DB
-       let error = null;
-       let data = null;
+      setConnectionStatus('saving');
+      const payload = { ...companyProfile, user_id: session.user.id };
 
-       try {
-           if (companyProfile.id) {
-               // Update existing by PK
-               const res = await supabase.from('company_profile').update(payload).eq('id', companyProfile.id).select().single();
-               error = res.error;
-               data = res.data;
-           } else {
-               // Check if exists by user_id
-               const { data: existing, error: fetchError } = await supabase
-                    .from('company_profile')
-                    .select('id')
-                    .eq('user_id', session.user.id)
-                    .maybeSingle();
-                
-               if (fetchError) throw fetchError;
+      // Manual Upsert Logic to avoid 42P10 error if user_id is not a unique constraint in DB
+      let error = null;
+      let data = null;
 
-               if (existing) {
-                   // Exists, update it
-                   const res = await supabase.from('company_profile').update(payload).eq('id', existing.id).select().single();
-                   error = res.error;
-                   data = res.data;
-                   if (data && !companyProfile.id) setCompanyProfile(prev => ({ ...prev, id: data.id }));
-               } else {
-                   // Does not exist, insert
-                   const res = await supabase.from('company_profile').insert(payload).select().single();
-                   error = res.error;
-                   data = res.data;
-                   if (data && !companyProfile.id) setCompanyProfile(prev => ({ ...prev, id: data.id }));
-               }
-           }
-       } catch (err: any) {
-           error = err;
-           console.error("Error saving profile:", err);
-       }
-       
-       handleSaveStatus(error);
+      try {
+        if (companyProfile.id) {
+          // Update existing by PK
+          const res = await supabase.from('company_profile').update(payload).eq('id', companyProfile.id).select().single();
+          error = res.error;
+          data = res.data;
+        } else {
+          // Check if exists by user_id
+          const { data: existing, error: fetchError } = await supabase
+            .from('company_profile')
+            .select('id')
+            .eq('user_id', session.user.id)
+            .maybeSingle();
+
+          if (fetchError) throw fetchError;
+
+          if (existing) {
+            // Exists, update it
+            const res = await supabase.from('company_profile').update(payload).eq('id', existing.id).select().single();
+            error = res.error;
+            data = res.data;
+            if (data && !companyProfile.id) setCompanyProfile(prev => ({ ...prev, id: data.id }));
+          } else {
+            // Does not exist, insert
+            const res = await supabase.from('company_profile').insert(payload).select().single();
+            error = res.error;
+            data = res.data;
+            if (data && !companyProfile.id) setCompanyProfile(prev => ({ ...prev, id: data.id }));
+          }
+        }
+      } catch (err: any) {
+        error = err;
+        console.error("Error saving profile:", err);
+      }
+
+      handleSaveStatus(error);
     }, 2000);
     return () => clearTimeout(timer);
   }, [companyProfile, session]);
@@ -274,7 +274,7 @@ export default function App() {
   }
 
   if (!session) {
-    return <AuthView onLogin={() => {}} />;
+    return <AuthView onLogin={() => { }} />;
   }
 
   const currentUserUser: User = {
@@ -297,12 +297,12 @@ export default function App() {
   return (
     <div className="flex h-screen bg-slate-100 dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100 transition-colors duration-200">
       {/* Sidebar Desktop */}
-      <Sidebar 
-        activeTab={activeTab} 
-        setActiveTab={setActiveTab} 
+      <Sidebar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
         isDarkMode={isDarkMode}
         toggleTheme={toggleTheme}
-        className="hidden md:flex" 
+        className="hidden md:flex"
         currentUser={currentUserUser}
         onLogout={handleLogout}
         connectionStatus={connectionStatus}
@@ -319,67 +319,66 @@ export default function App() {
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
         <div className="md:hidden fixed inset-0 bg-slate-900 z-40 pt-20 px-4 space-y-4">
-           {menuItems.map(item => (
+          {menuItems.map(item => (
             <button
               key={item.id}
               onClick={() => { setActiveTab(item.id as ViewTab); setIsMobileMenuOpen(false); }}
-              className={`w-full flex items-center gap-3 px-4 py-4 rounded-xl text-lg transition-all ${
-                activeTab === item.id ? 'bg-amber-600 text-white' : 'text-slate-400 bg-slate-800'
-              }`}
+              className={`w-full flex items-center gap-3 px-4 py-4 rounded-xl text-lg transition-all ${activeTab === item.id ? 'bg-amber-600 text-white' : 'text-slate-400 bg-slate-800'
+                }`}
             >
               <item.icon size={24} />
               {item.label}
             </button>
           ))}
-           <button
-              onClick={() => { toggleTheme(); }}
-              className={`w-full flex items-center gap-3 px-4 py-4 rounded-xl text-lg transition-all text-slate-400 bg-slate-800`}
-            >
-              {isDarkMode ? 'Modo Claro' : 'Modo Escuro'}
-            </button>
-            <button
-              onClick={handleLogout}
-              className={`w-full flex items-center gap-3 px-4 py-4 rounded-xl text-lg transition-all text-red-400 bg-slate-800`}
-            >
-              Sair
-            </button>
+          <button
+            onClick={() => { toggleTheme(); }}
+            className={`w-full flex items-center gap-3 px-4 py-4 rounded-xl text-lg transition-all text-slate-400 bg-slate-800`}
+          >
+            {isDarkMode ? 'Modo Claro' : 'Modo Escuro'}
+          </button>
+          <button
+            onClick={handleLogout}
+            className={`w-full flex items-center gap-3 px-4 py-4 rounded-xl text-lg transition-all text-red-400 bg-slate-800`}
+          >
+            Sair
+          </button>
         </div>
       )}
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto p-4 md:p-8 pt-20 md:pt-8 scroll-smooth">
         {activeTab === 'dashboard' && (
-          <Dashboard 
-            inventory={inventory} 
-            transactions={transactions} 
-            quotes={quotes} 
+          <Dashboard
+            inventory={inventory}
+            transactions={transactions}
+            quotes={quotes}
             onNavigate={setActiveTab}
           />
         )}
         {activeTab === 'projects' && (
-          <ProjectManager 
+          <ProjectManager
             quotes={quotes}
             employees={employees}
             onEditProject={handleEditProject}
           />
         )}
         {activeTab === 'stock' && (
-          <StockManager 
-            inventory={inventory} 
-            setInventory={setInventory} 
+          <StockManager
+            inventory={inventory}
+            setInventory={setInventory}
           />
         )}
         {activeTab === 'finance' && (
-          <FinanceManager 
-            transactions={transactions} 
-            setTransactions={setTransactions} 
+          <FinanceManager
+            transactions={transactions}
+            setTransactions={setTransactions}
           />
         )}
         {activeTab === 'quotes' && (
-          <QuoteBuilder 
-            inventory={inventory} 
-            quotes={quotes} 
-            setQuotes={setQuotes} 
+          <QuoteBuilder
+            inventory={inventory}
+            quotes={quotes}
+            setQuotes={setQuotes}
             onFinish={() => setActiveTab('quotes')}
             initialEditId={quoteToEditId}
             onClearEditId={() => setQuoteToEditId(null)}
@@ -392,7 +391,7 @@ export default function App() {
           <CutPlanEstimator />
         )}
         {activeTab === 'suppliers' && (
-          <SupplierManager 
+          <SupplierManager
             suppliers={suppliers}
             setSuppliers={setSuppliers}
             salespeople={salespeople}
@@ -400,14 +399,14 @@ export default function App() {
           />
         )}
         {activeTab === 'team' && (
-          <TeamManager 
+          <TeamManager
             employees={employees}
             setEmployees={setEmployees}
             quotes={quotes}
           />
         )}
         {activeTab === 'settings' && (
-          <SettingsManager 
+          <SettingsManager
             companyProfile={companyProfile}
             setCompanyProfile={setCompanyProfile}
             onClose={() => setActiveTab('dashboard')}

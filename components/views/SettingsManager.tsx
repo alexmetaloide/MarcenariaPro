@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Save, Building2, MapPin, Phone, Mail, FileText, Type, ArrowLeft } from 'lucide-react';
+import { Save, Building2, MapPin, Phone, Mail, FileText, Type, ArrowLeft, Download } from 'lucide-react';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
@@ -15,6 +15,28 @@ interface SettingsManagerProps {
 export const SettingsManager: React.FC<SettingsManagerProps> = ({ companyProfile, setCompanyProfile, onClose }) => {
   const [formData, setFormData] = useState<CompanyProfile>(companyProfile);
   const [saved, setSaved] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log(`User response to the install prompt: ${outcome}`);
+    setDeferredPrompt(null);
+  };
 
   useEffect(() => {
     setFormData(companyProfile);
@@ -23,7 +45,7 @@ export const SettingsManager: React.FC<SettingsManagerProps> = ({ companyProfile
   const handleSave = () => {
     setCompanyProfile(formData);
     setSaved(true);
-    
+
     // Mostra a mensagem de salvo e fecha após 800ms
     setTimeout(() => {
       setSaved(false);
@@ -46,87 +68,104 @@ export const SettingsManager: React.FC<SettingsManagerProps> = ({ companyProfile
       <Card className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-4">
-             <div className="flex items-center gap-2 text-slate-700 dark:text-slate-200 font-bold border-b dark:border-slate-700 pb-2 mb-4">
-               <Type size={18} /> Identificação
-             </div>
-             
-             <Input 
-               label="Nome Fantasia da Marcenaria" 
-               value={formData.name} 
-               onChange={e => setFormData({...formData, name: e.target.value})}
-               placeholder="Ex: Marcenaria Silva"
-             />
-             
-             <Input 
-               label="Slogan / Subtítulo" 
-               value={formData.slogan || ''} 
-               onChange={e => setFormData({...formData, slogan: e.target.value})}
-               placeholder="Ex: Móveis Planejados & Interiores"
-             />
-             
-             <Input 
-               label="CNPJ" 
-               value={formData.cnpj} 
-               onChange={e => setFormData({...formData, cnpj: e.target.value})}
-               placeholder="00.000.000/0000-00"
-             />
+            <div className="flex items-center gap-2 text-slate-700 dark:text-slate-200 font-bold border-b dark:border-slate-700 pb-2 mb-4">
+              <Type size={18} /> Identificação
+            </div>
+
+            <Input
+              label="Nome Fantasia da Marcenaria"
+              value={formData.name}
+              onChange={e => setFormData({ ...formData, name: e.target.value })}
+              placeholder="Ex: Marcenaria Silva"
+            />
+
+            <Input
+              label="Slogan / Subtítulo"
+              value={formData.slogan || ''}
+              onChange={e => setFormData({ ...formData, slogan: e.target.value })}
+              placeholder="Ex: Móveis Planejados & Interiores"
+            />
+
+            <Input
+              label="CNPJ"
+              value={formData.cnpj}
+              onChange={e => setFormData({ ...formData, cnpj: e.target.value })}
+              placeholder="00.000.000/0000-00"
+            />
           </div>
 
           <div className="space-y-4">
-             <div className="flex items-center gap-2 text-slate-700 dark:text-slate-200 font-bold border-b dark:border-slate-700 pb-2 mb-4">
-               <MapPin size={18} /> Contato e Localização
-             </div>
-             
-             <Input 
-               label="Endereço Completo" 
-               value={formData.address} 
-               onChange={e => setFormData({...formData, address: e.target.value})}
-               placeholder="Rua Exemplo, 123 - Bairro - Cidade/UF"
-             />
-             
-             <Input 
-               label="Telefone / WhatsApp Comercial" 
-               value={formData.phone} 
-               onChange={e => setFormData({...formData, phone: e.target.value})}
-               placeholder="(00) 00000-0000"
-             />
-             
-             <Input 
-               label="E-mail" 
-               value={formData.email || ''} 
-               onChange={e => setFormData({...formData, email: e.target.value})}
-               placeholder="contato@marcenaria.com"
-             />
+            <div className="flex items-center gap-2 text-slate-700 dark:text-slate-200 font-bold border-b dark:border-slate-700 pb-2 mb-4">
+              <MapPin size={18} /> Contato e Localização
+            </div>
+
+            <Input
+              label="Endereço Completo"
+              value={formData.address}
+              onChange={e => setFormData({ ...formData, address: e.target.value })}
+              placeholder="Rua Exemplo, 123 - Bairro - Cidade/UF"
+            />
+
+            <Input
+              label="Telefone / WhatsApp Comercial"
+              value={formData.phone}
+              onChange={e => setFormData({ ...formData, phone: e.target.value })}
+              placeholder="(00) 00000-0000"
+            />
+
+            <Input
+              label="E-mail"
+              value={formData.email || ''}
+              onChange={e => setFormData({ ...formData, email: e.target.value })}
+              placeholder="contato@marcenaria.com"
+            />
           </div>
         </div>
-        
+
+        {deferredPrompt && (
+          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-900/40 p-4 rounded-lg flex flex-col md:flex-row items-center justify-between gap-4 mt-6">
+            <div className="flex items-center gap-3">
+              <div className="bg-amber-100 dark:bg-amber-900/50 p-2 rounded-full">
+                <Download className="text-amber-600" size={20} />
+              </div>
+              <div>
+                <h4 className="font-bold text-amber-900 dark:text-amber-400">Instalar Aplicativo</h4>
+                <p className="text-xs text-amber-800 dark:text-amber-300/80">Tenha o MarcenariaPro sempre à mão instalando como um aplicativo.</p>
+              </div>
+            </div>
+            <Button onClick={handleInstallClick} className="bg-amber-600 hover:bg-amber-700 text-white border-none w-full md:w-auto">
+              Instalar Agora
+            </Button>
+          </div>
+        )}
+
         <div className="flex justify-end pt-4 border-t border-slate-100 dark:border-slate-700 gap-2">
-           <Button variant="secondary" onClick={onClose}>Cancelar</Button>
-           <Button onClick={handleSave} icon={Save} className="min-w-[150px]">
-             {saved ? 'Salvo!' : 'Salvar e Fechar'}
-           </Button>
+          <Button variant="secondary" onClick={onClose}>Cancelar</Button>
+          <Button onClick={handleSave} icon={Save} className="min-w-[150px]">
+            {saved ? 'Salvo!' : 'Salvar e Fechar'}
+          </Button>
         </div>
       </Card>
-      
+
       {/* Visualização (Preview) do Cabeçalho */}
       <div className="mt-8 opacity-75">
-         <h3 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">Pré-visualização do Cabeçalho na Proposta</h3>
-         <div className="bg-white p-8 border-b-4 border-amber-600 shadow-sm rounded-t-lg">
-            <div className="flex justify-between items-end">
-                <div>
-                    <h1 className="text-3xl font-extrabold text-amber-600 leading-none">{formData.name || 'Nome da Marcenaria'}</h1>
-                    <p className="text-slate-500 mt-1">{formData.slogan || 'Seu slogan aqui'}</p>
-                    <p className="text-xs text-slate-400 mt-2">
-                       {formData.cnpj ? `CNPJ: ${formData.cnpj}` : 'CNPJ: 00.000.000/0000-00'} • {formData.phone || '(00) 0000-0000'}
-                    </p>
-                </div>
-                <div className="text-right text-xs text-slate-400 max-w-[200px]">
-                   {formData.address || 'Endereço da empresa'}
-                   {formData.email && <br/>}
-                   {formData.email}
-                </div>
+        <h3 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">Pré-visualização do Cabeçalho na Proposta</h3>
+        <div className="bg-white p-8 border-b-4 border-amber-600 shadow-sm rounded-t-lg">
+          <div className="flex justify-between items-end">
+            <div>
+              <h1 className="text-3xl font-extrabold text-amber-600 leading-none">{formData.name || 'Nome da Marcenaria'}</h1>
+              <p className="text-slate-500 mt-1">{formData.slogan || 'Seu slogan aqui'}</p>
+              <p className="text-xs text-slate-400 mt-2">
+                {formData.cnpj ? `CNPJ: ${formData.cnpj}` : 'CNPJ: 00.000.000/0000-00'} • {formData.phone || '(00) 0000-0000'}
+              </p>
             </div>
-         </div>
+            <div className="text-right text-xs text-slate-400 max-w-[200px]">
+              {formData.address || 'Endereço da empresa'}
+              {formData.email && <br />}
+              {formData.email}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
