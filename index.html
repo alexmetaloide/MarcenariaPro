@@ -1,0 +1,172 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR" class="antialiased">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MarcenariaPro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              slate: {
+                850: '#1e293b', 
+                950: '#020617',
+              },
+              amber: {
+                450: '#f59e0b',
+              }
+            },
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+            }
+          }
+        }
+      }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+      
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: #f8fafc; /* Slate 50 background for entire app */
+      }
+
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent; 
+      }
+      .dark ::-webkit-scrollbar-track {
+        background: #0f172a; 
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #cbd5e1; 
+        border-radius: 10px;
+      }
+      .dark ::-webkit-scrollbar-thumb {
+        background: #334155; 
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8; 
+      }
+
+      .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+
+      @keyframes fade-in {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .animate-fade-in {
+        animation: fade-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+
+      @keyframes slide-down {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .animate-slide-down {
+        animation: slide-down 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+
+      /* Estilos para Impressão / PDF */
+      @media print {
+        /* Ocultar elementos da interface geral */
+        aside, 
+        .no-print, 
+        button, 
+        input, 
+        select, 
+        .header-controls {
+          display: none !important;
+        }
+
+        /* Ocultar painéis específicos do CutPlanEstimator */
+        .tools-pane, 
+        .visualizer-pane {
+          display: none !important;
+        }
+
+        /* Resetar estilos do corpo */
+        body, main, #root {
+          background: white !important;
+          color: black !important;
+          padding: 0 !important;
+          margin: 0 !important;
+          overflow: visible !important;
+          height: auto !important;
+        }
+        
+        /* Forçar cores claras em cards na impressão mesmo se dark mode estiver ativo na tela */
+        .bg-white, .dark\:bg-slate-800, .bg-slate-50, .dark\:bg-slate-900 {
+           background-color: white !important;
+           color: black !important;
+           border: none !important;
+           box-shadow: none !important;
+        }
+
+        /* Exibir e posicionar o relatório de impressão */
+        #pdf-report-content {
+          position: static !important; /* Remove posicionamento absoluto/fora da tela */
+          left: auto !important;
+          top: auto !important;
+          display: block !important;
+          visibility: visible !important; /* Garante visibilidade sobrescrevendo inline style */
+          width: 100% !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          background: white !important;
+          z-index: 9999 !important;
+          opacity: 1 !important;
+        }
+        
+        /* Garantir visibilidade interna do relatório */
+        #pdf-report-content * {
+          visibility: visible !important;
+          color: black !important;
+        }
+
+        /* Evitar quebra de página dentro de elementos importantes */
+        .page-break-avoid, .break-inside-avoid {
+          page-break-inside: avoid !important;
+          break-inside: avoid !important;
+        }
+
+        /* Forçar exibição de background colors para o SVG e gráficos */
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.555.0",
+    "recharts": "https://aistudiocdn.com/recharts@^3.5.1",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
