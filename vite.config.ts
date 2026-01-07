@@ -16,10 +16,12 @@ export default defineConfig(({ mode }) => {
       VitePWA({
         registerType: 'autoUpdate',
         injectRegister: 'auto',
+        strategies: 'generateSW',
         devOptions: {
-          enabled: true
+          enabled: true,
+          type: 'classic'
         },
-        includeAssets: ['favicon.ico', 'pwa-192x192.png', 'pwa-512x512.png'],
+        includeAssets: ['favicon.ico', 'pwa-192x192.png', 'pwa-512x512.png', 'pwa-180x180.png'],
         manifest: {
           name: 'Marcenaria Pro',
           short_name: 'MarcenariaPro',
@@ -31,6 +33,12 @@ export default defineConfig(({ mode }) => {
           scope: '/MarcenariaPro/',
           start_url: '/MarcenariaPro/',
           icons: [
+            {
+              src: 'pwa-180x180.png',
+              sizes: '180x180',
+              type: 'image/png',
+              purpose: 'any'
+            },
             {
               src: 'pwa-192x192.png',
               sizes: '192x192',
