@@ -13,6 +13,7 @@ import {
   AlertCircle,
   Package,
   Pencil,
+  Sparkles,
   ArrowRight
 } from 'lucide-react';
 import { Card } from '../ui/Card';
@@ -21,6 +22,7 @@ import { Input } from '../ui/Input';
 import { Select } from '../ui/Select';
 import { InventoryItem } from '../../types';
 import { formatCurrency, CATEGORIES } from '../../constants';
+import { StockAIChatModal, ExtractedItem } from './StockAIChatModal';
 
 interface StockManagerProps {
   inventory: InventoryItem[];
@@ -33,6 +35,9 @@ export const StockManager: React.FC<StockManagerProps> = ({ inventory, setInvent
   const [activeFilter, setActiveFilter] = useState("Todos");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
+
+  // AI Modal State
+  const [isAIModalOpen, setIsAIModalOpen] = useState(false);
 
   const [newItem, setNewItem] = useState<Omit<InventoryItem, 'id'>>({
     name: '',
@@ -87,6 +92,22 @@ export const StockManager: React.FC<StockManagerProps> = ({ inventory, setInvent
     resetForm();
   };
 
+  const handleAIImport = (items: ExtractedItem[]) => {
+    // Convert extracted items to inventory items and add them
+    const newItems: InventoryItem[] = items.map((item, index) => ({
+      id: Date.now() + index,
+      name: item.name,
+      category: item.category,
+      quantity: item.quantity,
+      price: item.price,
+      unit: item.unit,
+      minStock: 5 // Default min stock
+    }));
+
+    setInventory(prev => [...prev, ...newItems]);
+    setIsAIModalOpen(false);
+  };
+
   const handleDelete = (id: number) => {
     if (window.confirm('Tem certeza que deseja excluir este item?')) {
       onDelete(id);
@@ -112,6 +133,14 @@ export const StockManager: React.FC<StockManagerProps> = ({ inventory, setInvent
 
   return (
     <div className="space-y-6 animate-fade-in">
+
+      {/* AI Chat Modal */}
+      <StockAIChatModal
+        isOpen={isAIModalOpen}
+        onClose={() => setIsAIModalOpen(false)}
+        onImport={handleAIImport}
+      />
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="flex items-center gap-4 py-4">
           <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full text-blue-600 dark:text-blue-400"><Package size={24} /></div>
@@ -142,7 +171,15 @@ export const StockManager: React.FC<StockManagerProps> = ({ inventory, setInvent
 
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Gerenciar Estoque</h2>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
+          <Button
+            variant="outline"
+            onClick={() => setIsAIModalOpen(true)}
+            icon={Sparkles}
+            className="text-purple-600 border-purple-200 hover:bg-purple-50 dark:border-purple-900/30 dark:hover:bg-purple-900/20"
+          >
+            Importar com IA
+          </Button>
           {inventory.length > 0 && (
             <Button variant="danger" onClick={handleDeleteAll} icon={Trash2}>
               Limpar Tudo
@@ -295,6 +332,7 @@ export const StockManager: React.FC<StockManagerProps> = ({ inventory, setInvent
                         Cadastre MDF, fitas de borda, ferragens e insumos. Isso permitirá calcular orçamentos precisos e gerar planos de corte automáticos.
                       </p>
                       <Button onClick={() => { resetForm(); setIsFormOpen(true); }} icon={Plus}>Cadastrar Primeiro Material</Button>
+                      <Button variant="outline" className="mt-2 text-purple-600 border-purple-200" onClick={() => setIsAIModalOpen(true)} icon={Sparkles}>Importar Lista via PDF</Button>
                     </div>
                   </td>
                 </tr>
